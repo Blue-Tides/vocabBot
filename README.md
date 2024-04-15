@@ -11,5 +11,6 @@ To do:
 \-storage system<br>
 \-suggest word based on message<br>
 \-point system<br>
-\-leaderboard system
+\-leaderboard system<br>
+\-clean up code
 
