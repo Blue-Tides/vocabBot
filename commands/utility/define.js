@@ -15,24 +15,28 @@ module.exports = {
 		await interaction.deferReply();
 		var definition=null;
 		function send() {
-			//console.log(ready);
 			if(ready==-1) {
 			ready=-2;
-			interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true })
-			
+			interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+			return;
 		};
-			if (ready != 1) return;
-			//console.log("trying to send??");
-			//interaction.editReply("Messages got!");
+			if (ready != 1&&ready!=-3) return;
             var embed=new EmbedBuilder();
+			if(ready==1){
 			embed.setTitle(definition.word);
             var d="";
             definition.definitions.forEach((val,i)=>{
                 d+=`${i+1}. ${val.partOfSpeech}\n\t${val.definition}\n`
             })
+			if(d=="") d="No definitions provided :skull:"
 			interaction.editReply({
 				embeds: [embed.setDescription(d)]
 			});
+		} else {
+			embed.setDescription(`cannot find word \`${interaction.options.getString("word")}\``);
+			interaction.editReply({embeds: [embed.setDescription(`cannot find word \`${interaction.options.getString("word")}\``)]});
+		}
+
 		}
 		var ready=0;
         const options = {
@@ -45,9 +49,13 @@ module.exports = {
           };
           
           request(options, function (error, response, body) {
-              if (error||response.statusCode!=200) {ready=-1; send();}
+              if (error) {ready=-1;send();return;}
+			
                 definition=JSON.parse(body);
 				//console.log(definition);
+				//console.log(response.statusCode);
+				if(response.statusCode==404) {ready=-3;send(); return;}
+				if(response.statusCode!=200) {ready=-1;send();return;}
 				ready++;
                 send();
           });
