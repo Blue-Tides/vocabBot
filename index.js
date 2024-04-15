@@ -1,6 +1,6 @@
 const { Client, Events, GatewayIntentBits, Collection } = require("discord.js");
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds,GatewayIntentBits.GuildMessages,GatewayIntentBits.MessageContent] });
 const {token}= require("./config.json");
 const fs = require('node:fs');
 const path = require('node:path');
@@ -53,4 +53,10 @@ client.on(Events.InteractionCreate, async interaction => {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 		}
 	}
+});
+
+client.on("messageCreate", (message) => {
+	if(message.author.bot) return;
+	const m=message.content.split(" ");
+	message.reply(`your mom ${m[0]}`);
 });
