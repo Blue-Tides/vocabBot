@@ -57,7 +57,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on("messageCreate", (message) => {
 	if(message.author.bot) return;
-	const m=message.content.split(" ");
+	if(Math.random()<0.9) return;
+	const m=message.content.replace("/[^a-zA-Z]/g","").split(" ");
 	var word=m[Math.floor(Math.random()*m.length)];
 	const options = {
 		method: 'GET',
@@ -75,7 +76,7 @@ client.on("messageCreate", (message) => {
 			try {
 			var embed=new EmbedBuilder();
 			embed.setTitle("New Word");
-			embed.setDescription(`Hey! Did you know a synonymn for \`${word}\` is \`${(syn.synonyms)[0]}\`? <insert add to list or something btn>`);
+			embed.setDescription(`Hey! Did you know a synonymn for \`${syn.word}\` is \`${(syn.synonyms)[0]}\`? <insert add to list or something btn>`);
 		  message.reply({embeds: [embed]});}
 		  catch(e) {
 			console.error(e);
