@@ -3,13 +3,16 @@ invite: https://discord.com/oauth2/authorize?client_id=1228471830445035590
 
 Current Commands:
 -
-define - defines a word
+
+define - defines a word<br>
+suggest word based on message<br>
+\-message reading !!
 
 To do:
 -
 \-basic quizzing mechanic<br>
 \-storage system<br>
-\-suggest word based on message<br>
+\-find synonymns<br>
 \-point system<br>
 \-leaderboard system<br>
 \-clean up code
