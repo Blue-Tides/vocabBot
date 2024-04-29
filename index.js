@@ -6,9 +6,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const request = require("request");
 client.commands = new Collection();
-client.buttons=new Map();
-client.questions=new Collection();
-client.question=0;
+client.buttons = new Map();
+client.questions = new Collection();
+client.question = 0;
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -78,7 +78,7 @@ client.on("messageCreate", async (message) => {
 			//console.log(syn);
 			//console.log(response.statusCode);
 			if (response.statusCode != 200) { return; }
-			if (syn.synonyms===undefined) return;
+			if (syn.synonyms === undefined) return;
 			if (syn.synonyms[0] === undefined) return;
 			try {
 				//console.log("nice");
@@ -92,68 +92,101 @@ client.on("messageCreate", async (message) => {
 			}
 		});
 	} else {
-		const embed=new EmbedBuilder();
+		const embed = new EmbedBuilder();
 		embed.setTitle("POP QUIZ!");
-		const a=new ButtonBuilder()
-			.setCustomId(`Quiz_${client.question}_A`)
-			.setLabel("A")
-			.setStyle(ButtonStyle.Primary);
-		const b=new ButtonBuilder()
-			.setCustomId(`Quiz_${client.question}_B`)
-			.setLabel("B")
-			.setStyle(ButtonStyle.Primary);
-		const c=new ButtonBuilder()
-			.setCustomId(`Quiz_${client.question}_C`)
-			.setLabel("C")
-			.setStyle(ButtonStyle.Primary);
-		const d=new ButtonBuilder()
-			.setCustomId(`Quiz_${client.question}_D`)
-			.setLabel("D")
-			.setStyle(ButtonStyle.Primary);
-		const row = new ActionRowBuilder()
-			.addComponents(a,b,c,d);
-		client.buttons.set(`Quiz_${client.question}_A`,a);
-		client.buttons.set(`Quiz_${client.question}_B`,b);
-		client.buttons.set(`Quiz_${client.question}_C`,c);
-		client.buttons.set(`Quiz_${client.question}_D`,d);
-		client.questions.set(""+client.question,"B");
-		client.question++;
-		message.channel.send({embeds:[embed],components:[row]});
+		const words = [];
+		const definitions = [];
+		getWords();
+		function getWords() {
+			if (words.length < 4) {
+				//console.log("thing should be happening!");
+				const options = {
+					method: 'GET',
+					url: 'https://wordsapiv1.p.rapidapi.com/words/',
+					qs: {random:"true"},
+					headers: {
+					  'X-RapidAPI-Key': apitoken,
+					  'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com'
+					}
+				  };
+				request(options, (error, response, body) => {
+					//console.log(error);
+					if (error || response.statusCode != 200) return;
+					var word = JSON.parse(body);
+					//console.log(word);
+					//console.log(word.word);
+					if (!words.includes(word.word)&&word.results!=undefined) {
+						words.push(word.word);
+						definitions.push(word.results[0].definition);
+					}
+					getWords();
+				});
+			} else {
+				//console.log("words got!")
+				//console.log(words);
+				const correctAnswer = Math.floor(Math.random() * 4);
+				const abcd = ["A", "B", "C", "D"];
+				var desc = `What is the definition of \`${words[correctAnswer]}?\`\n`
+				abcd.forEach((val, i) => {
+					desc += `${val}. ${definitions[i]}\n`;
+				});
+				embed.setDescription(desc);
+				const a = new ButtonBuilder()
+					.setCustomId(`Quiz_${client.question}_A`)
+					.setLabel("A")
+					.setStyle(ButtonStyle.Primary);
+				const b = new ButtonBuilder()
+					.setCustomId(`Quiz_${client.question}_B`)
+					.setLabel("B")
+					.setStyle(ButtonStyle.Primary);
+				const c = new ButtonBuilder()
+					.setCustomId(`Quiz_${client.question}_C`)
+					.setLabel("C")
+					.setStyle(ButtonStyle.Primary);
+				const d = new ButtonBuilder()
+					.setCustomId(`Quiz_${client.question}_D`)
+					.setLabel("D")
+					.setStyle(ButtonStyle.Primary);
+				const row = new ActionRowBuilder()
+					.addComponents(a, b, c, d);
+				client.buttons.set(`Quiz_${client.question}_A`, a);
+				client.buttons.set(`Quiz_${client.question}_B`, b);
+				client.buttons.set(`Quiz_${client.question}_C`, c);
+				client.buttons.set(`Quiz_${client.question}_D`, d);
+				client.questions.set("" + client.question, abcd[correctAnswer]);
+				client.question++;
+				//console.log("message sending?");
+				message.channel.send({ embeds: [embed], components: [row] });
+			}
+		}
 	}
 
 });
-client.on('interactionCreate', async (interaction)=>{
-	if(interaction.isButton()) {
-        const btnInfo = interaction.customId.split("_");
+client.on('interactionCreate', async (interaction) => {
+	if (interaction.isButton()) {
+		const btnInfo = interaction.customId.split("_");
 
-        try {
-			if(btnInfo[0]=="Quiz") {
-				const correct=client.questions.get(btnInfo[1]);
+		try {
+			if (btnInfo[0] == "Quiz") {
+				const correct = client.questions.get(btnInfo[1]);
 				//console.log(correct);
-				if(btnInfo[2]==correct) {
+				if (btnInfo[2] == correct) {
 					/*award points*/
 					interaction.reply("Correct!");
 				} else {
 					interaction.reply("wrong");
 				}
-				//delete buttons
-				//console.log(client.buttons);
-				//console.log(client.buttons.get(`Quiz_${btnInfo[1]}_A`));
-				//client.buttons.get(`Quiz_${btnInfo[1]}_A`).setDisabled(true);
 				client.buttons.delete(`Quiz_${btnInfo[1]}_A`);
-				//client.buttons.get(`Quiz_${btnInfo[1]}_B`).setDisabled(true);
 				client.buttons.delete(`Quiz_${btnInfo[1]}_B`);
-				//client.buttons.get(`Quiz_${btnInfo[1]}_C`).setDisabled(true);
 				client.buttons.delete(`Quiz_${btnInfo[1]}_C`);
-				//client.buttons.get(`Quiz_${btnInfo[1]}_D`).setDisabled(true);
 				client.buttons.delete(`Quiz_${btnInfo[1]}_D`);
 				//console.log(interaction.message);
-				interaction.message.edit({embeds:interaction.message.embeds,content:`Answered! Correct answer is: ${client.questions.get(btnInfo[1])}`,components:[]});
-				client.questions.delete(""+btnInfo[1]);
+				interaction.message.edit({ embeds: interaction.message.embeds, content: `Answered! Correct answer is: ${client.questions.get(btnInfo[1])}`, components: [] });
+				client.questions.delete("" + btnInfo[1]);
 			}
-        } catch (error) {
-            console.error(error);
-            await interaction.reply({ content: 'There was an error while executing the button script !', ephemeral: true});
-        }
-    }
+		} catch (error) {
+			console.error(error);
+			await interaction.reply({ content: 'There was an error while executing the button script !', ephemeral: true });
+		}
+	}
 });
