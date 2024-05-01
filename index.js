@@ -59,8 +59,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on("messageCreate", async (message) => {
 	if (message.author.bot) return;
-	if (Math.random() < 0) return;
-	if (Math.random() < 0) {
+	if (Math.random() < 0.6) return;
+	if (Math.random() < 0.5) {
 		const m = message.content.replace(/[^a-zA-Z\s]/g, "").split(" ");
 		var word = m[Math.floor(Math.random() * m.length)];
 		const options = {
