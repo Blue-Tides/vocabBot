@@ -1,0 +1,6 @@
+services:
+  - name: discord-bot
+    env:
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}  # Use Railway's secrets for environment variables
+    buildCommand: npm install && npm run build  # Customize build commands as needed
+    runCommand: npm start  # Customize start command if different
