@@ -2,10 +2,12 @@ const {REST, Routes } = require("discord.js");
 const fs = require('node:fs');
 const path = require('node:path');
 
-const {token,clientId}= require("./config.json");
+//const {token,clientId}= require("./config.json");
+const token=process.env.DISCORD_TOKEN;
+const clientId="1228471830445035590";
 //fs storage stuff setup
 const commands = [];
-
+require('dotenv').config();
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 

@@ -1,7 +1,9 @@
 const { Client, Events, GatewayIntentBits, Collection, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require("discord.js");
-
+require('dotenv').config();
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-const { token, apitoken } = require("./config.json");
+const token=process.env.DISCORD_TOKEN;
+const apitoken=process.env.API_TOKEN;
+//const { token, apitoken } = require("./config.json");
 const fs = require('node:fs');
 const path = require('node:path');
 const request = require("request");

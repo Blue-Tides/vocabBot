@@ -1,7 +1,7 @@
 const request=require("request");
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const {apitoken}=require("../../config.json");
-
+const apitoken=process.env.API_TOKEN;
+require('dotenv').config();
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('define')
